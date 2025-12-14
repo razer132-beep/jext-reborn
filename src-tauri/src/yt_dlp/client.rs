@@ -157,7 +157,12 @@ pub async fn get_yt_dlp_release_data() -> Result<serde_json::Value, String> {
         Err(e) => return Err(format!("Error getting yt-dlp release: {}", e)),
     };
 
-    let data = match response.json::<serde_json::Value>().await {
+    let text = match response.text().await {
+        Ok(text) => text,
+        Err(e) => return Err(format!("Error reading yt-dlp response: {}", e)),
+    };
+
+    let data = match serde_json::from_str::<serde_json::Value>(&text) {
         Ok(data) => data,
         Err(e) => return Err(format!("Error parsing yt-dlp release: {}", e)),
     };
